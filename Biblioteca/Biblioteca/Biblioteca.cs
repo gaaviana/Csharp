@@ -79,8 +79,8 @@ namespace Biblioteca
                                 {
                                     usarioEncontrado = true;
                                     livro.Emprestar();
-                                    dataService.SalvarLivros();
                                     livro.UsuarioEmprestimo = usuario;
+                                    dataService.SalvarLivros();
                                     Console.WriteLine($"\nEmprestimo realizado com sucesso! (Livro: {livroEmprestimo} Para: {usuarioEmp})");
                                     break;
                                 }
@@ -89,7 +89,7 @@ namespace Biblioteca
 
                             if(!usarioEncontrado)
                             {
-                                Console.WriteLine("Usuário não encontrado, tente novamente");
+                                Console.WriteLine("\nUsuário não encontrado, tente novamente");
                             }
                
                         }

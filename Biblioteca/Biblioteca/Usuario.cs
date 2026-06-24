@@ -6,11 +6,13 @@ namespace Biblioteca
 {
     public class Usuario
     {
-        public string Nome;
-        public int Id;
+        public int Id { get; set; }
+        public string Nome { get; set; }
+
         public Usuario()
         {
         }
+
         public Usuario(int id, string nome)
         {
             Id = id;
