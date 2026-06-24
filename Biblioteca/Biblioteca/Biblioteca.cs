@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.IO;
+using System.Text.Json;
 
 namespace Biblioteca
 {
     public class Biblioteca
     {
-        static List<Livro> livros = new List<Livro>();
+        public static List<Livro> livros = new List<Livro>();
+        public static List<Usuario> usuarios = new List<Usuario>();
+        DataService dataService = new DataService();
 
         public void CadastrarLivro()
         {
@@ -17,9 +18,10 @@ namespace Biblioteca
             Console.Write("Autor: ");
             string autor = Console.ReadLine();
 
-            bool disponivel = true;
+            int id = 1 + livros.Count;
 
-            livros.Add(new Livro(titulo, autor, disponivel));
+            livros.Add(new Livro(id, titulo, autor, null));
+            dataService.SalvarLivros();
             Console.WriteLine("\nLivro cadastrado com sucesso!");
             Console.WriteLine("--------------------------------\n");
         }
@@ -37,7 +39,8 @@ namespace Biblioteca
                 Console.WriteLine("------- LISTA DE LIVROS --------");
                 foreach (var livro in livros)
                             {
-                                Console.WriteLine($"Livro: {livro.Titulo} | Autor: {livro.Autor} | Disponivel: {livro.Disponivel}");
+                                string status = livro.Disponivel ? "Sim" : "Não";
+                                Console.WriteLine($"Id: {livro.Id} | Livro: {livro.Titulo} | Autor: {livro.Autor} | Disponivel: {status} | Usuario: {(livro.UsuarioEmprestimo != null ? livro.UsuarioEmprestimo.Nome : "Nenhum")}");
                             }
             }
                 Console.WriteLine("--------------------------------\n");
@@ -57,18 +60,38 @@ namespace Biblioteca
                 Console.WriteLine("------- EMPRESTAR LIVRO --------");
                 Console.Write("Nome do livro: ");
                 string livroEmprestimo = Console.ReadLine();
-                bool encontrou = false;
+                bool livroEncontrado = false;
 
                 foreach (var livro in livros)
                 {
                     if (livro.Titulo == livroEmprestimo)
                     {
-                        encontrou = true;
+                        livroEncontrado = true;
                         if (livro.Disponivel == true)
                         {
-                            livro.Disponivel = false;
-                            Console.WriteLine($"\nEmprestimo realizado com sucesso! ({livroEmprestimo})");
-                           
+                            Console.Write("Emprestar para: ");
+                            string usuarioEmp = Console.ReadLine();
+                            bool usarioEncontrado = false;
+
+                            foreach(var usuario in usuarios)
+                            {
+                                if(usuario.Nome == usuarioEmp)
+                                {
+                                    usarioEncontrado = true;
+                                    livro.Emprestar();
+                                    dataService.SalvarLivros();
+                                    livro.UsuarioEmprestimo = usuario;
+                                    Console.WriteLine($"\nEmprestimo realizado com sucesso! (Livro: {livroEmprestimo} Para: {usuarioEmp})");
+                                    break;
+                                }
+
+                            }
+
+                            if(!usarioEncontrado)
+                            {
+                                Console.WriteLine("Usuário não encontrado, tente novamente");
+                            }
+               
                         }
                         else
                         {
@@ -80,7 +103,7 @@ namespace Biblioteca
                     }
                 }
 
-                if (!encontrou)
+                if (!livroEncontrado)
                 {
                     Console.WriteLine("\nLivro não encontrado, tente novamente!");
                 }
@@ -103,7 +126,9 @@ namespace Biblioteca
                     encontrou = true;
                     if (livro.Disponivel == false)
                     {
-                        livro.Disponivel = true;
+                        livro.Devolver();
+                        dataService.SalvarLivros();
+                        livro.UsuarioEmprestimo = null;
                         Console.WriteLine($"\nLivro devolvido com sucesso! ({livroDevolvido})");
                        
                     }
@@ -134,17 +159,18 @@ namespace Biblioteca
             else
             {
                 Console.WriteLine("------- BUSCAR LIVROS --------");
-                Console.Write("Nome do livro: ");
+                Console.Write("Digite o nome ou o Id do livro: ");
                 string busca = Console.ReadLine();
                 bool encontrou = false;
 
-                Console.WriteLine("BUSCA: ");
+                Console.WriteLine($"BUSCA: {busca}");
                 foreach (var livro in livros)
                 {
-                    if (livro.Titulo.ToLower().Contains(busca.ToLower()))
+                    if (livro.Titulo.ToLower().Contains(busca.ToLower()) || livro.Id.ToString().Contains(busca.ToLower()))
                     {
                         encontrou = true;
-                        Console.WriteLine($"\nLivro: {livro.Titulo} | Autor: {livro.Autor} | Disponivel: {livro.Disponivel}");
+                        string status = livro.Disponivel ? "Sim" : "Não";
+                        Console.WriteLine($"\nId: {livro.Id} | Livro: {livro.Titulo} | Autor: {livro.Autor} | Disponivel: {status}");
                     }
                 }
 
@@ -156,5 +182,41 @@ namespace Biblioteca
                 Console.WriteLine("--------------------------------\n");
             }
         }
+
+        public void CadasatrarUsuario()
+        {
+            Console.WriteLine("------- CADASTRAR USUARIO--------");
+            Console.Write("Nome: ");
+            string nome = Console.ReadLine();
+
+            int id = 1 + usuarios.Count;
+
+            usuarios.Add(new Usuario(id,nome));
+            dataService.SalvarUsuarios();
+            Console.WriteLine("\nUsuario cadastrado com sucesso!");
+            Console.WriteLine("--------------------------------\n");
+        }
+
+        public void ListarUsuarios()
+        {
+            if (livros.Count == 0)
+            {
+                Console.WriteLine("------- LISTA DE USUARIOS --------");
+                Console.WriteLine("Nenhum Usuario cadastrado!");
+
+            }
+            else
+            {
+                Console.WriteLine("------- LISTA DE USUARIOS --------");
+                foreach (var usuario in usuarios)
+                {
+                    
+                    Console.WriteLine($"Id: {usuario.Id} | Usuario: {usuario.Nome}");
+                }
+            }
+            Console.WriteLine("--------------------------------\n");
+
+        }
+
     }
 }

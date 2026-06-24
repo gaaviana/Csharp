@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.Json;
 
 namespace Biblioteca
 {
@@ -10,6 +11,10 @@ namespace Biblioteca
         public void Start()
         {
             Biblioteca biblioteca = new Biblioteca();
+            DataService dataService = new DataService();
+
+            dataService.CarregarLivros();
+            dataService.CarregarUsuarios();
 
             while (true)
             {
@@ -24,22 +29,30 @@ namespace Biblioteca
                         break;
 
                     case "2":
-                        biblioteca.ListarLivros();
+                        biblioteca.CadasatrarUsuario();
                         break;
 
                     case "3":
-                        biblioteca.EmprestarLivro();
+                        biblioteca.ListarLivros();
                         break;
 
                     case "4":
-                        biblioteca.DevolverLivro();
+                        biblioteca.ListarUsuarios();
                         break;
 
                     case "5":
-                        biblioteca.BuscarLivro();
+                        biblioteca.EmprestarLivro();
                         break;
 
                     case "6":
+                        biblioteca.DevolverLivro();
+                        break;
+
+                    case "7":
+                        biblioteca.BuscarLivro();
+                        break;
+
+                    case "8":
                         return
                             ;
                     default:
@@ -48,15 +61,17 @@ namespace Biblioteca
                 }
             }
         }
-        public void Menu()
+        private void Menu()
         {
             Console.WriteLine("========== BIBLIOTECA ==========");
             Console.WriteLine("1 - Cadastrar Livro");
-            Console.WriteLine("2 - Listar Livros");
-            Console.WriteLine("3 - Emprestar Livro");
-            Console.WriteLine("4 - Devolver Livro");
-            Console.WriteLine("5 - Buscar Livro");
-            Console.WriteLine("6 - Sair");
+            Console.WriteLine("2 - Cadastrar Usuario");
+            Console.WriteLine("3 - Listar Livros");
+            Console.WriteLine("4 - Listar Usuarios");
+            Console.WriteLine("5 - Emprestar Livro");
+            Console.WriteLine("6 - Devolver Livro");
+            Console.WriteLine("7 - Buscar Livro");
+            Console.WriteLine("8 - Sair");
             Console.Write("Escolha uma opção: ");
             
         }
